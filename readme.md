@@ -8,7 +8,7 @@ Usage
 
 Install via composer.  Example usage:
 
-```
+``` php
 <?php
 use TJM\ShellRunner\ShellRunner;
 
