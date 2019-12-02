@@ -1,0 +1,20 @@
+{
+	"name": "tjm/shell-runner"
+	,"description": "Run shell commands over ssh or locally from PHP."
+	,"authors": [
+		{
+			"name": "Toby Mackenzie"
+			,"email": "public@tobymackenzie.com"
+			,"homepage": "https://www.tobymackenzie.com"
+		}
+	]
+	,"license": "BSD-3-Clause"
+	,"autoload": {
+		"psr-4": {
+			"TJM\\ShellRunner\\": "src"
+		}
+	}
+	,"require": {
+		"php": ">=5.3.3"
+	}
+}
