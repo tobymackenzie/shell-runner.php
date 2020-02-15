@@ -23,6 +23,10 @@ class ShellRunner{
 
 	//==run
 	public function run($opts = Array()){
+		if(is_string($opts)){
+			$opts = Array('command'=> $opts);
+		}
+
 		//--determine command to run, if any
 		$runCommand = isset($opts['command']) ? $opts['command'] : null;
 		if(is_array($runCommand)){
