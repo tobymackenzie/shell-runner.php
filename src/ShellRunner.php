@@ -50,6 +50,9 @@ class ShellRunner{
 		}
 		$shellOptions = isset($opts['shellOpts']) ? $opts['shellOpts'] : array();
 		if($host === 'localhost'){
+			if($interactive && !in_array('-i', $shellOptions)){
+				$shellOptions[] = '-i';
+			}
 			if($runCommand && !in_array('-c', $shellOptions)){
 				$shellOptions[] = '-c';
 			}
@@ -57,6 +60,7 @@ class ShellRunner{
 		}else{
 			if($runCommand && $interactive && !in_array('-t', $shellOptions)){
 				$shellOptions[] = '-t';
+				$runCommand = '$SHELL -i -c ' . escapeshellarg($runCommand);
 			}
 			if(isset($opts['forwardAgent']) && $opts['forwardAgent'] && !in_array('-o ForwardAgent="yes"', $shellOptions)){
 				$shellOptions[] = '-o ForwardAgent="yes"';
