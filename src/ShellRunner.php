@@ -42,7 +42,7 @@ class ShellRunner{
 			$host = 'localhost';
 		}
 
-		//--interactive means we can interact with the shell process, but can't capture it.  defaults to true, but must be false if we want the output captured.
+		//--interactive means we can interact with the shell process, but can't capture it
 		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 
 		if(isset($opts['path']) && $opts['path']){
