@@ -45,7 +45,7 @@ class ShellRunner{
 		//--interactive means we can interact with the shell process, but can't capture it
 		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 
-		if(isset($opts['path']) && $opts['path']){
+		if(isset($opts['path']) && $opts['path'] && $opts['path'] !== '.'){
 			$runCommand = "cd " . escapeshellarg($opts['path']) . ($runCommand ? " && {$runCommand}" : ' && $SHELL --login');
 		}
 		$shellOptions = isset($opts['shellOpts']) ? $opts['shellOpts'] : array();
