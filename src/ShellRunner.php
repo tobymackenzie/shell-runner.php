@@ -80,6 +80,50 @@ class ShellRunner{
 		}
 		return isset($result) && $result ? implode("\n", $result) : $exitCode;
 	}
+
+	//-! this is just a temporary solution. eventually this functionality will be merged into `::run()` with a better interface and we won't have a need for this function anymore
+	public function runAll($opts = Array()){
+		//--determine locations to run command at
+		if(isset($opts['locations'])){
+			$locations = $opts['locations'];
+		}elseif(isset($opts['host']) || isset($opts['path'])){
+			$locations = Array(
+				Array(
+					'host'=> (isset($opts['host']) ? $opts['host'] : null)
+					,'path'=> (isset($opts['path']) ? $opts['path'] : null)
+				)
+			);
+		}
+
+		$results = Array();
+		foreach($locations as $key=> $location){
+			if(is_array($location)){
+				$host = (isset($location['host']) ? $location['host'] : null);
+				$path = (isset($location['path']) ? $location['path'] : null);
+			}else{
+				$host = is_numeric($key) ? 'localhost' : $key;
+				$path = $location;
+			}
+			if($this->hasHost($host)){
+				$host = $this->getHost($host);
+			}
+			if(!$host){
+				$host = 'localhost';
+			}
+			if(!$path){
+				$path = '.';
+			}
+			$opts['host'] = $host;
+			$opts['path'] = $path;
+			if($host === 'localhost'){
+				$pathKey = "file://{$path}";
+			}else{
+				$pathKey = "ssh://{$host}{$path}";
+			}
+			$results[$pathKey] = $this->run($opts);
+		}
+		return $results;
+	}
 	protected function convertCommandsArrayToString($commands){
 		return implode(' && ', $commands);
 	}
