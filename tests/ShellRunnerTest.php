@@ -20,7 +20,7 @@ class ShellRunnerTest extends TestCase{
 					'host'=> 'tobymackenzie.com',
 					'path'=> '/',
 				),
-				'expect'=> "ssh tobymackenzie.com  'cd '\''/'\'' && ls -l'",
+				'expect'=> "ssh tobymackenzie.com 'cd '\''/'\'' && ls -l'",
 			),
 		) as $opts){
 			$results = $shell->buildCommandString($opts['command']);

@@ -81,7 +81,11 @@ class ShellRunner{
 			$command = "ssh {$host}";
 		}
 		if($runCommand){
-			$command .= ' ' . implode(' ', $shellOptions) . ' ' . escapeshellarg($runCommand);
+			$command .= ' ';
+			if($shellOptions){
+				implode(' ', $shellOptions) . ' ';
+			}
+			$command .= escapeshellarg($runCommand);
 		}
 		return $command;
 	}
