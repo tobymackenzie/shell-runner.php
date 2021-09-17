@@ -19,8 +19,8 @@ class ShellRunnerTest extends TestCase{
 				,'path'=> '/'
 			))
 		) as $results){
-			$this->assertRegExp('/\sroot\s/', $results, "Listing root directory should contain string 'root'");
-			$this->assertRegExp('/\setc\s/', $results, "Listing root directory should contain string 'etc'");
+			$this->assertMatchesRegularExpression('/\sroot\s/', $results, "Listing root directory should contain string 'root'");
+			$this->assertMatchesRegularExpression('/\setc\s/', $results, "Listing root directory should contain string 'etc'");
 		}
 	}
 }
