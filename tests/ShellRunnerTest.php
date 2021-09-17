@@ -4,6 +4,29 @@ use PHPUnit\Framework\TestCase;
 use TJM\ShellRunner\ShellRunner;
 
 class ShellRunnerTest extends TestCase{
+	public function testBuildingCommandStrings(){
+		$shell = new ShellRunner();
+		foreach(array(
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'path'=> '/',
+				),
+				'expect'=> "bash -c 'cd '\''/'\'' && ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'host'=> 'tobymackenzie.com',
+					'path'=> '/',
+				),
+				'expect'=> "ssh tobymackenzie.com  'cd '\''/'\'' && ls -l'",
+			),
+		) as $opts){
+			$results = $shell->buildCommandString($opts['command']);
+			$this->assertEquals($opts['expect'], trim($results));
+		}
+	}
 	public function testListDirectory(){
 		$shell = new ShellRunner();
 		foreach(Array(

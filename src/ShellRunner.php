@@ -21,8 +21,7 @@ class ShellRunner{
 		return isset($this->hosts[$alias]);
 	}
 
-	//==run
-	public function run($opts = Array()){
+	public function buildCommandString($opts = array()){
 		if(is_string($opts)){
 			$opts = Array('command'=> $opts);
 		}
@@ -84,6 +83,16 @@ class ShellRunner{
 		if($runCommand){
 			$command .= ' ' . implode(' ', $shellOptions) . ' ' . escapeshellarg($runCommand);
 		}
+		return $command;
+	}
+
+	//==run
+	public function run($opts = Array()){
+		if(is_string($opts)){
+			$opts = Array('command'=> $opts);
+		}
+		$command = $this->buildCommandString($opts);
+		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 		if($interactive){
 			passthru($command, $exitCode);
 		}else{
