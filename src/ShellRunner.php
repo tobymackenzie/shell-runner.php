@@ -27,6 +27,8 @@ class ShellRunner{
 			$opts = Array('command'=> $opts);
 		}
 
+		$shell = !empty($opts['shell']) ? $opts['shell'] : 'bash';
+
 		//--determine command to run, if any
 		$runCommand = isset($opts['command']) ? $opts['command'] : null;
 		if(is_array($runCommand)){
@@ -46,7 +48,7 @@ class ShellRunner{
 		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 
 		if(isset($opts['path']) && $opts['path'] && $opts['path'] !== '.'){
-			$runCommand = "cd " . escapeshellarg($opts['path']) . ($runCommand ? " && {$runCommand}" : ' && $SHELL --login');
+			$runCommand = "cd " . escapeshellarg($opts['path']) . ($runCommand ? " && {$runCommand}" : ' && ' . $shell . ' --login');
 		}
 		$shellOptions = isset($opts['shellOpts']) ? $opts['shellOpts'] : array();
 		if($host === 'localhost'){
@@ -56,14 +58,14 @@ class ShellRunner{
 			if($runCommand && !in_array('-c', $shellOptions)){
 				$shellOptions[] = '-c';
 			}
-			$command = '$SHELL';
+			$command = $shell;
 			if(!empty($opts['sudo'])){
 				$command = 'sudo ' . ($opts['sudo'] === true ? '' : " -u {$opts['sudo']}") . ' ' . escapeshellarg($command);
 			}
 		}else{
 			if($runCommand && $interactive && !in_array('-t', $shellOptions)){
 				$shellOptions[] = '-t';
-				$runCommand = '$SHELL -i -c ' . escapeshellarg($runCommand);
+				$runCommand = $shell . ' -i -c ' . escapeshellarg($runCommand);
 			}
 			if(isset($opts['forwardAgent']) && $opts['forwardAgent'] && !in_array('-o ForwardAgent="yes"', $shellOptions)){
 				$shellOptions[] = '-o ForwardAgent="yes"';
