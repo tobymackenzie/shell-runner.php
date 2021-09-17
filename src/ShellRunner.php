@@ -57,6 +57,9 @@ class ShellRunner{
 				$shellOptions[] = '-c';
 			}
 			$command = '$SHELL';
+			if(!empty($opts['sudo'])){
+				$command = 'sudo ' . ($opts['sudo'] === true ? '' : " -u {$opts['sudo']}") . ' ' . escapeshellarg($command);
+			}
 		}else{
 			if($runCommand && $interactive && !in_array('-t', $shellOptions)){
 				$shellOptions[] = '-t';
@@ -64,6 +67,15 @@ class ShellRunner{
 			}
 			if(isset($opts['forwardAgent']) && $opts['forwardAgent'] && !in_array('-o ForwardAgent="yes"', $shellOptions)){
 				$shellOptions[] = '-o ForwardAgent="yes"';
+			}
+			if(!empty($opts['sudo'])){
+				$tmp = $runCommand;
+				$runCommand = 'sudo ' . ($opts['sudo'] === true ? '' : " -u {$opts['sudo']}") . ' ';
+				if(!empty($opts['forwardAgent'])){
+					$runCommand .= '--preserve-env=SSH_AUTH_SOCK ';
+				}
+				$runCommand .= $tmp;
+				unset($tmp);
 			}
 			$command = "ssh {$host}";
 		}

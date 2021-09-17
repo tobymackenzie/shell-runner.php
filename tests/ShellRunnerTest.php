@@ -23,4 +23,27 @@ class ShellRunnerTest extends TestCase{
 			$this->assertMatchesRegularExpression('/\setc\s/', $results, "Listing root directory should contain string 'etc'");
 		}
 	}
+	public function testSudoWho(){
+		$shell = new ShellRunner();
+		// $me = trim(`whoami`);
+		foreach(Array(
+			// array(
+			// 	'host'=> 'localhost',
+			// 	'who'=> $me,
+			// ),
+			array(
+				'host'=> 'tobymackenzie.com',
+				'who'=> 'root',
+			),
+		) as $opts){
+			$results = $shell(Array(
+				'command'=> 'whoami',
+				'forwardAgent'=> true,
+				'host'=> $opts['host'],
+				'interactive'=> false,
+				'sudo'=> $opts['who'],
+			));
+			$this->assertEquals($opts['who'], trim($results), "Running as sudo should result in user being specified user");
+		}
+	}
 }
