@@ -83,7 +83,7 @@ class ShellRunner{
 		if($runCommand){
 			$command .= ' ';
 			if($shellOptions){
-				implode(' ', $shellOptions) . ' ';
+				$command .= implode(' ', $shellOptions) . ' ';
 			}
 			$command .= escapeshellarg($runCommand);
 		}
