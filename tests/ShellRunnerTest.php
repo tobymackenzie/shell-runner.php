@@ -17,10 +17,50 @@ class ShellRunnerTest extends TestCase{
 			array(
 				'command'=> array(
 					'command'=> 'ls -l',
+					'sudo'=> true,
+				),
+				'expect'=> "sudo bash -c 'ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'sudo'=> 'fooser',
+				),
+				'expect'=> "sudo -u fooser bash -c 'ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
 					'host'=> 'tobymackenzie.com',
 					'path'=> '/',
 				),
 				'expect'=> "ssh tobymackenzie.com 'cd '\''/'\'' && ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'forwardAgent'=> true,
+					'host'=> 'tobymackenzie.com',
+				),
+				'expect'=> "ssh tobymackenzie.com -o ForwardAgent=\"yes\" 'ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'forwardAgent'=> true,
+					'host'=> 'tobymackenzie.com',
+					'sudo'=> true,
+				),
+				'expect'=> "ssh tobymackenzie.com -o ForwardAgent=\"yes\" 'sudo --preserve-env=SSH_AUTH_SOCK ls -l'",
+			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'forwardAgent'=> true,
+					'host'=> 'tobymackenzie.com',
+					'sudo'=> 'fooser',
+				),
+				'expect'=> "ssh tobymackenzie.com -o ForwardAgent=\"yes\" 'sudo -u fooser --preserve-env=SSH_AUTH_SOCK ls -l'",
 			),
 		) as $opts){
 			$results = $shell->buildCommandString($opts['command']);
