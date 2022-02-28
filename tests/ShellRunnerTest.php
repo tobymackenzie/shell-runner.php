@@ -1,6 +1,8 @@
 <?php
 namespace TJM\ShellRunner\Tests;
 use PHPUnit\Framework\TestCase;
+use TJM\ShellRunner\Location\FileLocation;
+use TJM\ShellRunner\Location\SSHLocation;
 use TJM\ShellRunner\ShellRunner;
 
 class ShellRunnerTest extends TestCase{
@@ -62,29 +64,74 @@ class ShellRunnerTest extends TestCase{
 				),
 				'expect'=> "ssh tobymackenzie.com -o ForwardAgent=\"yes\" 'sudo -u fooser --preserve-env=SSH_AUTH_SOCK ls -l'",
 			),
+			array(
+				'command'=> array(
+					'command'=> 'ls -l',
+					'forwardAgent'=> true,
+					'sudo'=> 'fooser',
+				),
+				'location'=> new SSHLocation(array(
+					'host'=> 'tobymackenzie.com',
+				)),
+				'expect'=> "ssh tobymackenzie.com -o ForwardAgent=\"yes\" 'sudo -u fooser --preserve-env=SSH_AUTH_SOCK ls -l'",
+			),
 		) as $opts){
-			$results = $shell->buildCommandString($opts['command']);
+			$results = $shell->buildCommandString($opts['command'], $opts['location'] ?? null);
 			$this->assertEquals($opts['expect'], trim($results));
 		}
 	}
 	public function testListDirectory(){
 		$shell = new ShellRunner();
 		foreach(Array(
-			'local'=> $shell(Array(
+			'localOld'=> $shell(Array(
 				'command'=> 'ls -l'
 				,'interactive'=> false
 				,'path'=> '/'
-			))
-			,'remote'=> $shell(Array(
+			)),
+			'local'=> $shell(
+				array(
+					'command'=> 'ls -l'
+					,'interactive'=> false
+				),
+				new FileLocation('/'),
+			),
+			'remoteOld'=> $shell(Array(
 				'command'=> 'ls -l'
 				,'host'=> 'tobymackenzie.com'
 				,'interactive'=> false
 				,'path'=> '/'
-			))
+			)),
+			'remote'=> $shell(
+				array(
+					'command'=> 'ls -l',
+					'interactive'=> false,
+				), new SSHLocation(array(
+					'host'=> 'tobymackenzie.com',
+					'path'=> '/',
+				)
+			)),
 		) as $results){
 			$this->assertMatchesRegularExpression('/\sroot\s/', $results, "Listing root directory should contain string 'root'");
 			$this->assertMatchesRegularExpression('/\setc\s/', $results, "Listing root directory should contain string 'etc'");
 		}
+	}
+	public function testMultiLocation(){
+		$shell = new ShellRunner();
+		$results = $shell(
+			array(
+				'command'=> 'ls -l',
+				'interactive'=> false,
+			), array(
+				new FileLocation('/'),
+				new SSHLocation(array(
+					'host'=> 'tobymackenzie.com',
+					'path'=> '/',
+				)),
+			)
+		);
+		$this->assertMatchesRegularExpression('/\setc\s/', $results, "Listing root directory should contain string 'etc'");
+		$this->assertMatchesRegularExpression('/\s?file:\/\/\/\s?/', $results, "Multi-location run should list file location.");
+		$this->assertMatchesRegularExpression('/\s?ssh:\/\/tobymackenzie.com\s?/', $results, "Multi-location run should list ssh location.");
 	}
 	public function testSudoWho(){
 		$shell = new ShellRunner();

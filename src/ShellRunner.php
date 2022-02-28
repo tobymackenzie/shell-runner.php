@@ -1,12 +1,14 @@
 <?php
 namespace TJM\ShellRunner;
 use Exception;
+use TJM\ShellRunner\Location\LocationInterface;
+use TJM\ShellRunner\Location\SSHLocation;
 
 class ShellRunner{
 	protected $hosts = array();
 
-	public function __invoke($opts = Array()){
-		return $this->run($opts);
+	public function __invoke($opts = Array(), $locations = null){
+		return $this->run($opts, $locations);
 	}
 
 	//==hosts
@@ -15,13 +17,13 @@ class ShellRunner{
 		return $this;
 	}
 	public function getHost($alias){
-		return $this->hosts[$alias];
+		return $this->hosts[(string) $alias];
 	}
 	public function hasHost($alias){
-		return isset($this->hosts[$alias]);
+		return isset($this->hosts[(string) $alias]);
 	}
 
-	public function buildCommandString($opts = array()){
+	public function buildCommandString($opts = array(), $location = 'localhost'){
 		if(is_string($opts)){
 			$opts = Array('command'=> $opts);
 		}
@@ -34,23 +36,40 @@ class ShellRunner{
 			$runCommand = $this->convertCommandsArrayToString($runCommand);
 		}
 
-		//--determine host to run command on
-		$host = isset($opts['host']) ? $opts['host'] : null;
+		//--determine location to run command
+		if($location instanceof LocationInterface){
+			$host = $location->getHost();
+			$path = $location->getPath();
+			$protocol = $location->getProtocol();
+		}else{
+			$host = isset($opts['host']) ? $opts['host'] : $location;
+			if(isset($opts['path']) && $opts['path']){
+				$path = $opts['path'];
+			}
+			if($host === 'localhost' || !$host){
+				$protocol = 'file';
+			}else{
+				$protocol = 'ssh';
+			}
+		}
 		if($this->hasHost($host)){
 			$host = $this->getHost($host);
 		}
 		if(!$host){
 			$host = 'localhost';
 		}
+		if(!isset($path)){
+			$path = null;
+		}
 
 		//--interactive means we can interact with the shell process, but can't capture it
 		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 
-		if(isset($opts['path']) && $opts['path'] && $opts['path'] !== '.'){
-			$runCommand = "cd " . escapeshellarg($opts['path']) . ($runCommand ? " && {$runCommand}" : ' && ' . $shell . ' --login');
+		if($path && $path !== '.'){
+			$runCommand = "cd " . escapeshellarg($path) . ($runCommand ? " && {$runCommand}" : ' && ' . $shell . ' --login');
 		}
 		$shellOptions = isset($opts['shellOpts']) ? $opts['shellOpts'] : array();
-		if($host === 'localhost'){
+		if($protocol === 'file'){
 			if($interactive && !in_array('-i', $shellOptions)){
 				$shellOptions[] = '-i';
 			}
@@ -78,6 +97,9 @@ class ShellRunner{
 				$runCommand .= $tmp;
 				unset($tmp);
 			}
+			if($host instanceof SSHLocation){
+				$host = $host->getDestination();
+			}
 			$command = "ssh {$host}";
 		}
 		if($runCommand){
@@ -91,25 +113,45 @@ class ShellRunner{
 	}
 
 	//==run
-	public function run($opts = Array()){
+	public function run($opts = Array(), $locations = null){
 		if(is_string($opts)){
 			$opts = Array('command'=> $opts);
 		}
-		$command = $this->buildCommandString($opts);
-		$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
-		if($interactive){
-			passthru($command, $exitCode);
+		if(!is_array($locations)){
+			$locations = array($locations);
+		}
+		$results = array();
+		foreach($locations as $location){
+			$command = $this->buildCommandString($opts, $location);
+			$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
+			if($interactive){
+				passthru($command, $exitCode);
+			}else{
+				exec($command, $result, $exitCode);
+				$results[(string) $location] = $result;
+			}
+			if($exitCode){
+				throw new Exception("Error {$exitCode} running command `{$command}`", $exitCode);
+			}
+		}
+		if($results){
+			$return = '';
+			if(count($results) > 1){
+				foreach($results as $key=> $result){
+					$return .= "{$key}\n-----\n" . implode("\n", $result) . "\n";
+				}
+			}else{
+				$return = implode("\n", array_pop($results));
+			}
+			return $return;
 		}else{
-			exec($command, $result, $exitCode);
+			return $exitCode;
 		}
-		if($exitCode){
-			throw new Exception("Error {$exitCode} running command `{$command}`", $exitCode);
-		}
-		return isset($result) && $result ? implode("\n", $result) : $exitCode;
 	}
 
 	//-! this is just a temporary solution. eventually this functionality will be merged into `::run()` with a better interface and we won't have a need for this function anymore
 	public function runAll($opts = Array()){
+		trigger_error('`' . get_class($this) . '::runAll()` is deprecated and will be removed soon.  Try using `run()` with array for second argument.', E_USER_DEPRECATED);
 		//--determine locations to run command at
 		if(isset($opts['locations'])){
 			$locations = $opts['locations'];
