@@ -42,9 +42,14 @@ class ShellRunner{
 			$path = $location->getPath();
 			$protocol = $location->getProtocol();
 		}else{
-			$host = isset($opts['host']) ? $opts['host'] : $location;
-			if(isset($opts['path']) && $opts['path']){
-				$path = $opts['path'];
+			$host = isset($opts['host']) ? $opts['host'] : null;
+			$path = isset($opts['path']) && $opts['path'] ? $opts['path'] : null;
+			if(!$path && !$host){
+				if(is_dir($location)){
+					$path = $location;
+				}else{
+					$host = $location;
+				}
 			}
 			if($host === 'localhost' || !$host){
 				$protocol = 'file';
