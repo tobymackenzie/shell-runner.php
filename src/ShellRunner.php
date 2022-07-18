@@ -136,7 +136,11 @@ class ShellRunner{
 				$results[(string) $location] = $result;
 			}
 			if($exitCode){
-				throw new Exception("Error {$exitCode} running command `{$command}`", $exitCode);
+				$message = "Error {$exitCode} running command\n\ncommand:\n\n```\n{$command}\n```";
+				if(isset($result)){
+					$message .= "\n\nresult:\n\n```\n" . implode("\n", $result) . "\n```";
+				}
+				throw new Exception($message, $exitCode);
 			}
 		}
 		if($results){
