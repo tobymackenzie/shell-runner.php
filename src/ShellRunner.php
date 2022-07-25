@@ -45,7 +45,7 @@ class ShellRunner{
 			$host = isset($opts['host']) ? $opts['host'] : null;
 			$path = isset($opts['path']) && $opts['path'] ? $opts['path'] : null;
 			if(!$path && !$host){
-				if(is_dir($location)){
+				if($location && is_dir($location)){
 					$path = $location;
 				}else{
 					$host = $location;
