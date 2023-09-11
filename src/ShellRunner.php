@@ -1,6 +1,7 @@
 <?php
 namespace TJM\ShellRunner;
 use Exception;
+use Symfony\Component\Process\Process;
 use TJM\ShellRunner\Location\LocationInterface;
 use TJM\ShellRunner\Location\SSHLocation;
 
@@ -130,7 +131,15 @@ class ShellRunner{
 			$command = $this->buildCommandString($opts, $location);
 			$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 			if($interactive){
-				passthru($command, $exitCode);
+				//-# process better handles some interactive commands like `less`
+				if(class_exists(Process::class)){
+					$p = new Process($command);
+					$p->setTty(true);
+					$p->run();
+					$exitCode = $p->getExitCode();
+				}else{
+					passthru($command, $exitCode);
+				}
 			}else{
 				exec($command, $result, $exitCode);
 				$results[(string) $location] = $result;
