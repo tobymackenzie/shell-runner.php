@@ -132,8 +132,8 @@ class ShellRunner{
 			$interactive = isset($opts['interactive']) ? $opts['interactive'] : false;
 			if($interactive){
 				//-# process better handles some interactive commands like `less`
-				if(class_exists(Process::class)){
-					$p = new Process($command);
+				if(class_exists(Process::class) && (is_string($location) || (is_object($location) && $location->getProtocol() === 'file'))){
+					$p = Process::fromShellCommandline($command);
 					$p->setTty(true);
 					$p->run();
 					$exitCode = $p->getExitCode();
