@@ -142,7 +142,7 @@ class ShellRunner{
 							echo $buffer;
 						});
 					}
-					$exitCode = $p->getExitCode();
+					return $p->getExitCode();
 				}else{
 					passthru($command, $exitCode);
 				}
