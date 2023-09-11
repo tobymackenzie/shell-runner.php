@@ -136,9 +136,9 @@ class ShellRunner{
 					$p = Process::fromShellCommandline($command);
 					$p->setTty(true);
 					if(strpos('/(nano|vi) /i', $command) === false){
-						$p->mustRun();
+						$p->run();
 					}else{
-						$p->mustRun(function($t, $buffer){
+						$p->run(function($t, $buffer){
 							echo $buffer;
 						});
 					}
