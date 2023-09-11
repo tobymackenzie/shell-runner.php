@@ -135,7 +135,13 @@ class ShellRunner{
 				if(class_exists(Process::class) && (is_string($location) || (is_object($location) && $location->getProtocol() === 'file'))){
 					$p = Process::fromShellCommandline($command);
 					$p->setTty(true);
-					$p->run();
+					if(strpos('/(nano|vi) /i', $command) === false){
+						$p->mustRun();
+					}else{
+						$p->mustRun(function($t, $buffer){
+							echo $buffer;
+						});
+					}
 					$exitCode = $p->getExitCode();
 				}else{
 					passthru($command, $exitCode);
