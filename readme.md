@@ -42,5 +42,6 @@ Other Options
 	- [`system()`](https://www.php.net/manual/en/function.system.php)
 	- [`popen()`](https://www.php.net/manual/en/function.popen.php)
 	- [`procopen()`](https://www.php.net/manual/en/function.proc-open.php)
+- [Symfony Process Component](https://symfony.com/doc/current/components/process.html) (which this project uses in some cases)
 - [PHP Secure Communications Library](https://github.com/phpseclib/phpseclib)
 - [PHP Secure Shell2 extension](https://www.php.net/manual/en/book.ssh2.php)
