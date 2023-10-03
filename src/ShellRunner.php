@@ -135,7 +135,7 @@ class ShellRunner{
 				if(class_exists(Process::class) && (is_string($location) || (is_object($location) && $location->getProtocol() === 'file'))){
 					$p = Process::fromShellCommandline($command);
 					$p->setTty(true);
-					if(strpos('/(nano|vi) /i', $command) === false){
+					if(preg_match('/(\\$\\{?(EDITOR|VISUAL)[^ ]+|nano|vi[m]?) /i', $command) === 0){
 						$p->run();
 					}else{
 						$p->run(function($t, $buffer){
