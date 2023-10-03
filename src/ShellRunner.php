@@ -133,7 +133,7 @@ class ShellRunner{
 			if($interactive){
 				//-# process better handles some interactive commands like `less`
 				if(class_exists(Process::class) && (is_string($location) || (is_object($location) && $location->getProtocol() === 'file'))){
-					$p = Process::fromShellCommandline($command);
+					$p = Process::fromShellCommandline($command, null, null, null, null);
 					$p->setTty(true);
 					if(preg_match('/(\\$\\{?(EDITOR|VISUAL)[^ ]+|nano|vi[m]?) /i', $command) === 0){
 						$p->run();
