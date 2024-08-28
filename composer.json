@@ -8,7 +8,7 @@
 			,"homepage": "https://www.tobymackenzie.com"
 		}
 	]
-	,"license": "BSD-3-Clause"
+	,"license": "0BSD"
 	,"autoload": {
 		"psr-4": {
 			"TJM\\ShellRunner\\": "src"
